@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marvel Regedit - Panel Series Pro Max</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary-red: #ff0000;
+            --dark-bg: #050505;
+            --panel-bg: #111111;
+            --card-bg: #1a1a1a;
+            --glow: 0 0 15px rgba(255, 0, 0, 0.6);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            background: #000;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(26, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: -1;
+        }
+
+        .main-btn {
+            background: var(--primary-red);
+            border: none; color: white;
+            padding: 12px 25px; border-radius: 25px;
+            font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; transition: 0.3s; box-shadow: var(--glow);
+            text-decoration: none;
+        }
+
+        .main-btn:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--primary-red); }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 12px; background: #000; border: 1px solid #333;
+            color: white; border-radius: 5px; margin-top: 5px; box-sizing: border-box;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100; justify-content: center;
+            align-items: center; backdrop-filter: blur(5px);
+        }
+
+        .panel-container {
+            background: var(--panel-bg);
+            width: 90%; max-width: 900px;
+            border-radius: 10px; border: 1px solid #333;
+            max-height: 85vh; display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .panel-header { padding: 15px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #222; }
+        .close-btn { background: var(--primary-red); border: none; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
+
+        .admin-form { padding: 25px; overflow-y: auto; }
+        .settings-section { background: #0a0a0a; padding: 15px; border-radius: 8px; border: 1px solid #222; margin-bottom: 20px; }
+        
+        /* EXACT ORIGINAL CARD DESIGN */
+        .resource-card {
+            background: var(--card-bg);
+            border-radius: 8px; display: flex;
+            align-items: center; padding: 15px; margin-bottom: 15px; border: 1px solid #222;
+        }
+        .resource-card img { width: 160px; height: 90px; object-fit: cover; border-radius: 5px; margin-right: 20px; }
+
+        .admin-res-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #000; padding: 10px 15px; border-radius: 5px;
+            margin-bottom: 8px; border: 1px solid #222; border-left: 3px solid var(--primary-red);
+        }
+
+        .del-btn { color: #ff4444; background: none; border: 1px solid #ff4444; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: bold; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <canvas id="particleCanvas"></canvas>
+    <div class="bg-overlay"></div>
+
+    <div id="userLoginPage">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+            <div class="login-box" style="background: var(--panel-bg); padding: 40px; border-radius: 10px; border: 1px solid var(--primary-red); width: 320px; text-align: center;">
+                <h2 style="color: var(--primary-red); margin-bottom: 20px;">USER LOGIN</h2>
+                <input type="text" id="userInput" placeholder="Username">
+                <input type="password" id="userPassInput" placeholder="Password">
+                <button class="main-btn" style="width:100%; margin-top:20px;" onclick="attemptUserLogin()">LOGIN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display:none;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center;">
+            <div class="header-title">
+                <h1 style="margin:0; padding:0;">MARVEL REGEDIT</h1>
+                <p style="margin-top:5px;">PANEL SERIES PRO MAX</p>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 40px; flex-wrap: wrap;">
+                <a href="https://chat.whatsapp.com/FFVCNIVTIBWGy23KtBw8yH" target="_blank" class="main-btn"><i class="fab fa-youtube"></i> Visit Channel</a>
+                <a href="https://chat.whatsapp.com/FFVCNIVTIBWGy23KtBw8yH" target="_blank" class="main-btn"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                <button class="main-btn" onclick="openPanel('panelLogin')"><i class="fas fa-th-large"></i> PANEL</button>
+                <button class="main-btn" onclick="openPanel('videoPanel')"><i class="fas fa-folder"></i> Video Resources</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="panelLogin" class="overlay">
+        <div class="panel-container" style="max-width: 350px;">
+            <div style="text-align: center; padding: 30px;">
+                <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: var(--primary-red); margin-bottom: 15px;"></i>
+                <h4>Panel Access Required</h4>
+                <input type="text" id="panelUserIn" placeholder="Panel Username">
+                <input type="password" id="panelPassIn" placeholder="Panel Password">
+                <button class="main-btn" style="width: 100%; margin-top:15px;" onclick="attemptPanelLogin()">Access Panel</button>
+                <button class="close-btn" style="margin-top: 10px; width: 100%; background: #222;" onclick="closePanel('panelLogin')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="customPanel" class="overlay">
+        <div class="panel-container">
+            <div class="panel-header"><span>MAIN PANEL</span><button class="close-btn" onclick="closePanel('customPanel')">✕</button></div>
+            <div id="panelContentContainer" style="padding:20px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <div id="videoPanel" class="overlay">
+        <div class="panel-container">
+            <div class="panel-header"><span>VIDEO RESOURCES</span><button class="close-btn" onclick="closePanel('videoPanel')">✕</button></div>
+            <div id="videoContentContainer" style="padding:20px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <div id="adminLogin" class="overlay">
+        <div class="panel-container" style="max-width: 400px; padding: 40px; text-align: center;">
+            <h3>Admin Access</h3>
+            <input type="password" id="adminPassInput" placeholder="Admin Password">
+            <button class="main-btn" style="width: 100%; margin-top:15px;" onclick="checkAdminPassword()">Unlock</button>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="overlay">
+        <div class="panel-container">
+            <div class="panel-header"><span>ADMIN DASHBOARD</span><button class="close-btn" onclick="closePanel('adminPanel')">✕ Close</button></div>
+            <div class="admin-form">
+                <div class="settings-section">
+                    <h4>Admin Security</h4>
+                    <input type="text" id="newAdminPass" placeholder="New Admin Password">
+                    <button class="main-btn" style="width:100%; margin-top:5px;" onclick="updateCloudSetting('admin_pass', 'newAdminPass')">Update Admin Password</button>
+                </div>
+                <div class="settings-section">
+                    <h4>User Credential Management</h4>
+                    <p style="font-size: 0.8rem; color: #888;">Main Login (User/Pass):</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px;">
+                        <input type="text" id="newMainU" placeholder="User">
+                        <input type="text" id="newMainP" placeholder="Pass">
+                        <button class="main-btn" onclick="updateLoginSet('user_login', 'user_pass', 'newMainU', 'newMainP')">Save</button>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #888; margin-top: 15px;">Panel Button (User/Pass):</p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr auto; gap:10px;">
+                        <input type="text" id="newPanelU" placeholder="User">
+                        <input type="text" id="newPanelP" placeholder="Pass">
+                        <button class="main-btn" onclick="updateLoginSet('p_user', 'p_pass', 'newPanelU', 'newPanelP')">Save</button>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h4>Manage & Delete Content</h4>
+                    <input type="text" id="pTitle" placeholder="Title"><input type="text" id="pLink" placeholder="Link URL">
+                    <input type="file" id="pImgInput" style="display:none;" onchange="document.getElementById('pLbl').innerText='Image Ready'">
+                    <button class="main-btn" id="pLbl" style="width:100%; margin-top:10px; background:#222;" onclick="document.getElementById('pImgInput').click()">Upload Thumbnail</button>
+                    <div style="display:flex; gap:10px; margin-top:15px;">
+                        <button class="main-btn" style="flex:1;" onclick="uploadToCloud('panel')">Post to Panel</button>
+                        <button class="main-btn" style="flex:1;" onclick="uploadToCloud('video')">Post to Videos</button>
+                    </div>
+                    <h5 style="margin-top:20px;">Manage Active Items:</h5>
+                    <div id="adminPanelList"></div>
+                    <div id="adminVideoList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- PARTICLES ---
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
+                this.color = 'rgba(255, 0, 0, ' + (Math.random() * 0.5 + 0.2) + ')';
+            }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x > canvas.width) this.x = 0; if (this.x < 0) this.x = canvas.width; if (this.y > canvas.height) this.y = 0; if (this.y < 0) this.y = canvas.height; }
+            draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        function initParticles() { particles = []; for (let i = 0; i < 80; i++) particles.push(new Particle()); }
+        function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
+        initParticles(); animateParticles();
+
+        // --- SECURITY ---
+        const waLink = "https://chat.whatsapp.com/FFVCNIVTIBWGy23KtBw8yH";
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.key.toLowerCase() === 's') { e.preventDefault(); window.location.href = waLink; }
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key.toUpperCase())) || (e.ctrlKey && e.key === "U")) {
+                e.preventDefault(); window.location.href = waLink;
+            }
+            if (e.ctrlKey && e.shiftKey && e.code === 'KeyZ') openPanel('adminLogin');
+        });
+
+        // --- FIREBASE ---
+        const firebaseConfig = { apiKey: "AIzaSyACKwvdqQ190GulqpEKYelYl2mDopWCRFI", authDomain: "marvelregedit.firebaseapp.com", databaseURL: "https://marvelregedit-default-rtdb.firebaseio.com", projectId: "marvelregedit", storageBucket: "marvelregedit.firebasestorage.app", messagingSenderId: "400748341710", appId: "1:400748341710:web:8f14ba326a8ac7902de39f", measurementId: "G-6Z9YKM3FFX" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let cloudSettings = {}, panelItems = [], videoItems = [];
+
+        db.ref('/').on('value', snap => {
+            const data = snap.val();
+            if(data) {
+                cloudSettings = data.settings || {};
+                panelItems = data.panel_content ? Object.entries(data.panel_content) : [];
+                videoItems = data.video_content ? Object.entries(data.video_content) : [];
+                renderAll();
+            }
+        });
+
+        function attemptUserLogin() { if(document.getElementById('userInput').value === (cloudSettings.user_login || 'admin') && document.getElementById('userPassInput').value === (cloudSettings.user_pass || '1234')) { document.getElementById('userLoginPage').style.display = 'none'; document.getElementById('mainContent').style.display = 'block'; } else alert("Denied!"); }
+        function attemptPanelLogin() { if(document.getElementById('panelUserIn').value === (cloudSettings.p_user || 'panel') && document.getElementById('panelPassIn').value === (cloudSettings.p_pass || 'panel123')) { closePanel('panelLogin'); openPanel('customPanel'); } else alert("Denied!"); }
+        function checkAdminPassword() { if(document.getElementById('adminPassInput').value === (cloudSettings.admin_pass || 'HASEEB8496')) { closePanel('adminLogin'); openPanel('adminPanel'); } else alert("Wrong!"); }
+        function updateCloudSetting(key, id) { const v = document.getElementById(id).value; if(v) db.ref('settings/'+key).set(v).then(()=>alert("Synced!")); }
+        function updateLoginSet(kU, kP, idU, idP) { const u = document.getElementById(idU).value, p = document.getElementById(idP).value; if(u && p) { db.ref('settings/'+kU).set(u); db.ref('settings/'+kP).set(p).then(()=>alert("Synced!")); } }
+
+        function uploadToCloud(type) {
+            const title = document.getElementById('pTitle').value, link = document.getElementById('pLink').value, file = document.getElementById('pImgInput').files[0];
+            if(!title || !link || !file) return alert("Fill Info!");
+            const reader = new FileReader();
+            reader.onload = e => { db.ref(type+'_content').push({ title, link, img: e.target.result }).then(()=>alert("Added!")); };
+            reader.readAsDataURL(file);
+        }
+
+        function renderAll() {
+            // EXACT BUTTON POSITIONING FROM ORIGINAL CODE
+            const card = x => `<div class="resource-card"><img src="${x[1].img}"><div style="flex-grow:1; font-weight:bold;">${x[1].title}</div><a href="${x[1].link}" target="_blank" class="main-btn" style="padding:8px 20px; font-size:0.75rem;">RESOURCES</a></div>`;
+            const admin = (x, t) => `<div class="admin-res-item"><span>${x[1].title}</span><button class="del-btn" onclick="db.ref('${t}_content/${x[0]}').remove()">DELETE</button></div>`;
+            
+            document.getElementById('panelContentContainer').innerHTML = panelItems.map(x => card(x)).join('');
+            document.getElementById('videoContentContainer').innerHTML = videoItems.map(x => card(x)).join('');
+            document.getElementById('adminPanelList').innerHTML = panelItems.map(x => admin(x, 'panel')).join('');
+            document.getElementById('adminVideoList').innerHTML = videoItems.map(x => admin(x, 'video')).join('');
+        }
+
+        function openPanel(id) { document.getElementById(id).style.display = 'flex'; }
+        function closePanel(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>
